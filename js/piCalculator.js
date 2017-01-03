@@ -1,46 +1,98 @@
 /**
  * Created by JCel on 02/01/2017.
  */
-var tailleDessin = view.size.height;
-var pointMax = new Point(tailleDessin, tailleDessin);
-var totalPointCarre = 100;
-var totalPointCercle = 0;
-var randomPoints = [];
-var randomPoint;
-for (var i = 0; i < totalPointCarre; i++) {
-    randomPoint = new Point(Point.random());
-    console.log(randomPoint);
-    if(( randomPoint.x*randomPoint.x + randomPoint.y*randomPoint.y ) <= 1)
-        totalPointCercle++;
+$(document).ready(function() {
 
-    randomPoints.push(randomPoint);
-}
-console.log(totalPointCercle)
-var result = (totalPointCercle/totalPointCarre) * 4;
+    function generateRandomPoints(nbPoints) {
 
-$("#result").html(result);
+        var randomPoints = [];
+        for (var i = 0; i < nbPoints; i++) {
+            randomPoint = new Point(Point.random());
+            randomPoints.push(randomPoint);
+        }
+        return randomPoints;
+    }
 
-var topLeft = new Point(0, 0);
-var rectSize = new Size(tailleDessin, tailleDessin);
-var rect = new Path.Rectangle(topLeft, rectSize);
-rect.strokeColor = 'black';
+    function piMonteCarloCalcul(randomPoints) {
 
-var handleOut = new Point(tailleDessin/2, 0);
-var handleIn = new Point(0, -(tailleDessin/2));
+        var totalPointCercle = 0;
+        randomPoints.forEach(function(randomPoint) {
+            if ((randomPoint.x * randomPoint.x + randomPoint.y * randomPoint.y) <= 1)
+                totalPointCercle++;
+        });
 
-var firstPoint = new Point(0, 0);
-var firstSegment = new Segment(firstPoint, null, handleOut);
+        return (totalPointCercle / randomPoints.length) * 4;
+    }
 
-var secondPoint = new Point(tailleDessin, tailleDessin);
-var secondSegment = new Segment(secondPoint, handleIn, null);
+    function drawBlackCarre(taille) {
 
-var path = new Path(firstSegment, secondSegment);
-path.strokeColor = 'black';
+        var topLeft = new Point(0, 0);
+        var rectSize = new Size(taille, taille);
+        var rect = new Path.Rectangle(topLeft, rectSize);
+        rect.strokeColor = 'black';
+    }
 
-var circlePath = new Path.Circle(pointMax * Point.random(), 2);
-circlePath.fillColor = 'aquamarine';
-var cicleSymbol = new Symbol(circlePath);
+    function drawArc(tailleCarre) {
 
-randomPoints.forEach(function (randomPoint) {
-    cicleSymbol.place(randomPoint * pointMax);
+        var handleOut = new Point(tailleCarre / 2, 0);
+        var handleIn = new Point(0, -(tailleCarre / 2));
+
+        var firstPoint = new Point(0, 0);
+        var firstSegment = new Segment(firstPoint, null, handleOut);
+
+        var secondPoint = new Point(tailleCarre, tailleCarre);
+        var secondSegment = new Segment(secondPoint, handleIn, null);
+
+        var path = new Path(firstSegment, secondSegment);
+        path.strokeColor = 'black';
+    }
+
+    function piMonteCarloDraw(randomPoints, tailleCarre, taillePoint) {
+        project.clear();
+
+        paper.view.viewSize.width = tailleCarre;
+        paper.view.viewSize.height = tailleCarre;
+
+        var pointMax = new Point(tailleCarre, tailleCarre);
+
+        var isFirst = true;
+
+        var cicleSymbol;
+        randomPoints.forEach(function(randomPoint) {
+            if (isFirst) {
+                var circlePath = new Path.Circle(pointMax * randomPoint, taillePoint);
+                circlePath.fillColor = 'aquamarine';
+                cicleSymbol = new Symbol(circlePath);
+                isFirst = !isFirst
+            } else {
+                cicleSymbol.place(randomPoint * pointMax);
+            }
+        });
+
+        drawBlackCarre(tailleCarre);
+        drawArc(tailleCarre);
+    }
+
+    function piMonteCarlo(nbPoints,taillePoint) {
+
+        randomPoints = generateRandomPoints(nbPoints);
+
+        $("#piCalculatorResult").html(piMonteCarloCalcul(randomPoints));
+
+        var tailleDessin = view.size.width;
+        piMonteCarloDraw(randomPoints, tailleDessin, taillePoint);
+    }
+
+    piMonteCarlo(
+        $('#piMonteCarloNbPoint').val(),
+        $('#piMonteCarloSizePoint').val()
+    );
+
+    $('#bttnPiMonteCarlo').click(function() {
+
+        piMonteCarlo(
+            $('#piMonteCarloNbPoint').val(),
+            $('#piMonteCarloSizePoint').val()
+        );
+    });
 });
