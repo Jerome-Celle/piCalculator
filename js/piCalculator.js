@@ -55,25 +55,22 @@ $(document).ready(function() {
 
         var pointMax = new Point(tailleCarre, tailleCarre);
 
-        var isFirst = true;
 
-        var cicleSymbol;
+        var circlePath = new Path.Circle(pointMax, taillePoint);
+        circlePath.fillColor = 'aquamarine';
+        var cicleSymbol = cicleSymbol = new Symbol(circlePath);
+
         randomPoints.forEach(function(randomPoint) {
-            if (isFirst) {
-                var circlePath = new Path.Circle(pointMax * randomPoint, taillePoint);
-                circlePath.fillColor = 'aquamarine';
-                cicleSymbol = new Symbol(circlePath);
-                isFirst = !isFirst
-            } else {
-                cicleSymbol.place(randomPoint * pointMax);
-            }
+
+            cicleSymbol.place(randomPoint * pointMax);
+
         });
 
         drawBlackCarre(tailleCarre);
         drawArc(tailleCarre);
     }
 
-    function piMonteCarlo(nbPoints,taillePoint) {
+    function piMonteCarlo(nbPoints, taillePoint) {
 
         randomPoints = generateRandomPoints(nbPoints);
 
